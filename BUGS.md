@@ -54,6 +54,87 @@ backwards compat) is the minimal upstream change.
 
 ---
 
+## BUG-4: gratuitous `time.sleep(0.01)` inside the per-gRNA loop
+
+**Status:** noticed during scaling analysis. Fix is one line.
+
+**File:** `crispat/poisson_gauss.py:315`
+
+```python
+for gRNA in tqdm(gRNA_list):
+    time.sleep(0.01)        # <-- this
+    perturbed_cells, … = fit_PGMM(…)
+```
+
+86 gRNAs × 10 ms = ~0.9 s of dead time per call to `ga_poisson_gauss`. That
+becomes a meaningful fraction of total wall time once the actual fits are
+parallelized (run wall drops below ~20 s). The sleep is presumably
+left over from `tqdm`-display debugging and serves no functional purpose.
+
+**Fix:** delete the line.
+
+**Note:** the sleep is in the *parent* loop and so cannot be parallelized
+away — it's a pure serial floor.
+
+---
+
+## NOTE: AnnData/h5ad as a serial bottleneck
+
+Not in scope for the parallelization PR, but worth recording. The serial
+floor measured by Amdahl's law (~10% in early laptop sweeps; needs cluster
+confirmation) is dominated by:
+
+1. `sc.read_h5ad(input_file)` in the parent.
+2. AnnData being passed to workers (pickle in spawn-mode, COW-shared in
+   fork-mode — Linux defaults to fork so this is cheap, but still
+   irreducibly parent-side at startup).
+3. Final aggregation + CSV writes in the parent.
+
+Two directions worth exploring **after** the parallelization patch is
+merged, if speedup ceilings on the cluster turn out to be a real concern:
+
+- **picklerick** (Python bindings via maturin to the **scx** Rust core) —
+  lets workers attach to a shared on-disk single-cell experiment
+  representation without paying the full AnnData deserialization cost
+  per worker. The parent never has to fully materialize the AnnData;
+  workers index in lazily.
+- **BPCells** — sparse single-cell matrices stored as memory-mapped
+  bitpacked blocks. Random column access is O(1)-ish and fits process
+  parallelism perfectly: each worker mmaps the same file and reads only
+  the gRNA column it needs. No pickle, no fork-COW, no read_h5ad in the
+  parent at all.
+
+### Why this is the *real* motivation, not just I/O
+
+CPython's refcount-on-read defeats fork-COW: every time a worker reads
+a Python object's data pages, refcount header writes dirty the page,
+which the kernel COWs into a per-worker copy. So even though
+`ProcessPoolExecutor` on Linux forks (and starts with all pages shared
+with the parent), the AnnData footprint **converges towards
+n_workers × adata_size as workers actually do work.** This is the cost
+that scales with `n_jobs` on the laptop today and becomes binding on
+big screens (50k cells × 5k gRNAs).
+
+scx-via-picklerick fixes this on the **read** side: PyO3-wrapped Rust
+objects are opaque `PyCapsule` pointers — touching them doesn't write
+to any CPython refcount page, so the underlying Rust-owned buffer
+stays shared across workers. Combined with an mmap-backed file format,
+the kernel's page cache shares the same physical pages across all
+worker processes for free. Memory cost goes from `n_workers × M` down
+to roughly `1 × M` + tiny per-worker overhead.
+
+The benefit only materializes if workers stay on the Rust side: any
+`.toarray()`-style materialization back to NumPy reintroduces a
+per-worker Python-heap allocation. A real integration would need
+crispat to consume scx column views directly — which is also a much
+larger change than the n_jobs patch.
+
+Both options would additionally make the package usable on screens
+that don't fit in RAM, which is a separate but related win. Either
+one belongs in its own design discussion upstream.
+
+---
+
 ## BUG-3 (note, not really a bug): BLAS/OMP thread bleed
 
 The "single-threaded" baseline run hits 260–700% CPU on this machine,
