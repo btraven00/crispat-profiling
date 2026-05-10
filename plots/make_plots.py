@@ -25,12 +25,20 @@ from plotnine import (
 
 
 def _amdahl(n, p):
-    """Amdahl's law: S(n) = 1 / ((1-p) + p/n)."""
+    """Amdahl's law: S(n) = 1 / ((1-p) + p/n). Monotone, asymptotes at 1/(1-p)."""
     return 1.0 / ((1.0 - p) + p / n)
 
 
+def _usl(n, alpha, beta):
+    """Universal Scalability Law: S(n) = n / (1 + α(n-1) + βn(n-1)).
+    α = serial fraction (Amdahl-equivalent).
+    β = coherence/coordination cost per added worker — produces a true peak
+        and decline past n* = sqrt((1-α)/β), unlike Amdahl.
+    """
+    return n / (1.0 + alpha * (n - 1) + beta * n * (n - 1))
+
+
 def _fit_amdahl(n_jobs, speedup):
-    """Fit parallel fraction p to (n_jobs, speedup). Returns (p, p_err)."""
     if len(n_jobs) < 2:
         return None, None
     try:
@@ -42,6 +50,26 @@ def _fit_amdahl(n_jobs, speedup):
         return float(popt[0]), float(np.sqrt(np.diag(pcov))[0])
     except Exception:
         return None, None
+
+
+def _fit_usl(n_jobs, speedup):
+    """Returns (alpha, beta, n_star, s_star) or (None, None, None, None)."""
+    if len(n_jobs) < 3:
+        return None, None, None, None
+    try:
+        (alpha, beta), _ = curve_fit(
+            _usl, np.asarray(n_jobs, dtype=float),
+            np.asarray(speedup, dtype=float),
+            p0=[0.05, 0.001], bounds=([0.0, 0.0], [1.0, 1.0]),
+        )
+        if beta > 0:
+            n_star = float(np.sqrt((1.0 - alpha) / beta))
+            s_star = float(_usl(n_star, alpha, beta))
+        else:
+            n_star, s_star = float("inf"), 1.0 / alpha if alpha else float("inf")
+        return float(alpha), float(beta), n_star, s_star
+    except Exception:
+        return None, None, None, None
 
 
 # -------------------------------------------------------------------- scaling
@@ -67,39 +95,52 @@ def plot_scaling(scaling_csv: Path, out_dir: Path):
 
     df_sp = df.dropna(subset=["speedup"])
     if not df_sp.empty:
-        # Fit Amdahl's law per phase. Use the fitted curve to extrapolate
-        # over a smooth n_jobs grid that extends beyond the measured range,
-        # so the asymptote 1/(1-p) is visible on the plot.
-        n_max = max(df_sp["n_jobs"].max() * 4, 64)
-        n_grid = np.unique(np.geomspace(1.0, n_max, 60))
-        fit_rows = []
+        # Fit USL (and Amdahl for comparison) per phase. USL captures the
+        # observed peak-and-decline shape that Amdahl can't reproduce.
+        n_max = max(df_sp["n_jobs"].max() * 2, 128)
+        n_grid = np.unique(np.geomspace(1.0, n_max, 80))
+        usl_rows, amdahl_rows = [], []
         title_bits = []
         for phase, sub in df_sp.groupby("phase"):
             sub = sub.sort_values("n_jobs")
-            p, p_err = _fit_amdahl(sub["n_jobs"].values, sub["speedup"].values)
-            if p is None:
-                continue
-            for n in n_grid:
-                fit_rows.append({"phase": phase, "n_jobs": n, "speedup": _amdahl(n, p)})
-            title_bits.append(f"{phase}: p={p:.3f}±{p_err:.3f} (max≈{1/(1-p):.1f}×)")
-        fit_df = pd.DataFrame(fit_rows)
-        df = df_sp  # only plot rows with valid speedup
+            n_arr = sub["n_jobs"].values.astype(float)
+            s_arr = sub["speedup"].values
+            alpha, beta, n_star, s_star = _fit_usl(n_arr, s_arr)
+            p, p_err = _fit_amdahl(n_arr, s_arr)
+            if alpha is not None:
+                for n in n_grid:
+                    usl_rows.append({"phase": phase, "n_jobs": n, "speedup": _usl(n, alpha, beta)})
+                title_bits.append(
+                    f"{phase}: USL α={alpha*100:.2f}%  β={beta:.5f}  "
+                    f"peak n*={n_star:.0f} S*={s_star:.1f}×"
+                )
+            if p is not None:
+                for n in n_grid:
+                    amdahl_rows.append({"phase": phase, "n_jobs": n, "speedup": _amdahl(n, p)})
+        fit_df = pd.DataFrame(usl_rows)
+        amdahl_df = pd.DataFrame(amdahl_rows)
+        df = df_sp
         title = "Speedup vs baseline\n" + "  ·  ".join(title_bits) if title_bits else "Speedup vs baseline"
 
         p_su = (
             ggplot()
             + geom_abline(slope=1, intercept=0, linetype="dashed", color="grey")
         )
+        if not amdahl_df.empty:
+            p_su = p_su + geom_line(amdahl_df, aes(x="n_jobs", y="speedup", color="phase"),
+                                    linetype="dotted", alpha=0.5)
         if not fit_df.empty:
             p_su = p_su + geom_line(fit_df, aes(x="n_jobs", y="speedup", color="phase"),
-                                    linetype="dotted")
+                                    linetype="solid", alpha=0.7)
         p_su = (
             p_su
-            + geom_point(df, aes(x="n_jobs", y="speedup", color="phase"), size=2)
-            + geom_line(df, aes(x="n_jobs", y="speedup", color="phase"))
+            + geom_point(df, aes(x="n_jobs", y="speedup", color="phase"), size=2.5)
             + scale_x_log10() + scale_y_log10()
-            + labs(x="n_jobs", y="speedup", title=title)
+            + labs(x="n_jobs", y="speedup",
+                   title=title,
+                   subtitle="Points = measured.  Solid = USL fit.  Dotted = Amdahl fit (for comparison).  Dashed grey = ideal linear.")
             + theme_minimal()
+            + theme(plot_subtitle=element_text(size=8, color="#666"))
         )
         ggsave(p_su, str(out_dir / "speedup_curve.png"), dpi=150,
                width=7, height=4.5, units="in")

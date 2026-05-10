@@ -1,0 +1,6 @@
+{"ts":"2026-05-10T22:59:40.171Z","event":"run","phase":"start","pid":2161665,"host":"omnibenchmark","attrs":{"method":"both","n_jobs":64,"variant":"parallel"}}
+{"ts":"2026-05-10T22:59:40.171Z","event":"ga_gauss","phase":"start","pid":2161665,"host":"omnibenchmark","attrs":{"n_jobs":64}}
+{"ts":"2026-05-10T22:59:48.762Z","event":"ga_gauss","phase":"end","pid":2161665,"host":"omnibenchmark"}
+{"ts":"2026-05-10T22:59:48.762Z","event":"ga_poisson_gauss","phase":"start","pid":2161665,"host":"omnibenchmark","attrs":{"n_jobs":64}}
+{"ts":"2026-05-10T22:59:56.143Z","event":"ga_poisson_gauss","phase":"end","pid":2161665,"host":"omnibenchmark"}
+{"ts":"2026-05-10T22:59:56.143Z","event":"run","phase":"end","pid":2161665,"host":"omnibenchmark"}

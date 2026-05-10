@@ -82,5 +82,5 @@ pixi run python plots/make_plots.py      --results results
 
 Or (eventually) the whole DAG:
 ```bash
-pixi run omni run-local benchmark.yaml
+pixi run ob -- run benchmark.yaml --cores N
 ```
