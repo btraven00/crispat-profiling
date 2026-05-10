@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # E1 — single-axis n_jobs sweep on the cluster.
-# Run from the crispat-profiling root after `pixi install -e cluster`.
+# Run from the crispat-profiling root after `pixi install`.
 #
 # Usage:
 #   scripts/run_e1_sweep.sh             # default sweep
@@ -13,13 +13,12 @@
 set -euo pipefail
 
 SWEEP="${1:-1 2 4 8 16 32 64 100}"
-PIXI_ENV="${PIXI_ENV:-cluster}"
 
-echo "E1 sweep: n_jobs ∈ { $SWEEP }   env=$PIXI_ENV"
+echo "E1 sweep: n_jobs ∈ { $SWEEP }"
 echo "host=$(hostname) cores=$(nproc)"
 
 # 1. Prepare input (cheap, idempotent)
-pixi run -e "$PIXI_ENV" python data/prepare.py --out results/data/input.h5ad
+pixi run python data/prepare.py --out results/data/input.h5ad
 
 # 2. Sweep
 for n in $SWEEP; do
@@ -31,7 +30,7 @@ for n in $SWEEP; do
     rm -rf "$out"
     mkdir -p "$out"
     echo "[run]  n_jobs=$n -> $out"
-    pixi run -e "$PIXI_ENV" -- \
+    pixi run -- \
         denet --json --out "$out/denet.jsonl" \
         run python methods/parallel/run.py -- \
             --in results/data/input.h5ad \
@@ -40,10 +39,10 @@ for n in $SWEEP; do
 done
 
 # 3. Aggregate
-pixi run -e "$PIXI_ENV" python evaluation/correctness.py --results results
-pixi run -e "$PIXI_ENV" python evaluation/scaling.py    --results results
-pixi run -e "$PIXI_ENV" python plots/make_plots.py      --results results
-pixi run -e "$PIXI_ENV" python plots/make_e2_plot.py    --results results || true
+pixi run python evaluation/correctness.py --results results
+pixi run python evaluation/scaling.py    --results results
+pixi run python plots/make_plots.py      --results results
+pixi run python plots/make_e2_plot.py    --results results || true
 
 echo "[done] results in results/"
 echo "[done] scaling table:"
