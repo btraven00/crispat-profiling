@@ -32,6 +32,8 @@ def main():
     ap.add_argument("--method", choices=["gauss", "poisson_gauss", "both"], default="both")
     ap.add_argument("--n-jobs", type=int, default=1)
     ap.add_argument("--n-iter", type=int, default=250)
+    ap.add_argument("--no-plots", action="store_true",
+                    help="Skip per-gRNA loss/fitted-model PNGs (cuts per-worker overhead).")
     args = ap.parse_args()
 
     out = Path(args.out)
@@ -41,23 +43,27 @@ def main():
 
     emit("run", "start", {"method": args.method, "n_jobs": args.n_jobs, "variant": "parallel"})
 
+    make_plots = not args.no_plots
+
     if args.method in ("gauss", "both"):
-        emit("ga_gauss", "start", {"n_jobs": args.n_jobs})
+        emit("ga_gauss", "start", {"n_jobs": args.n_jobs, "make_plots": make_plots})
         cr.ga_gauss(
             input_file=args.input,
             output_dir=str(out / "gauss") + "/",
             n_iter=args.n_iter,
             n_jobs=args.n_jobs,
+            make_plots=make_plots,
         )
         emit("ga_gauss", "end")
 
     if args.method in ("poisson_gauss", "both"):
-        emit("ga_poisson_gauss", "start", {"n_jobs": args.n_jobs})
+        emit("ga_poisson_gauss", "start", {"n_jobs": args.n_jobs, "make_plots": make_plots})
         cr.ga_poisson_gauss(
             input_file=args.input,
             output_dir=str(out / "poisson_gauss") + "/",
             n_iter=args.n_iter,
             n_jobs=args.n_jobs,
+            make_plots=make_plots,
         )
         emit("ga_poisson_gauss", "end")
 
