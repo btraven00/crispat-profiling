@@ -88,10 +88,15 @@ def main():
 
     df = pd.DataFrame(rows)
 
-    # Speedup vs baseline (n_jobs=1, variant=baseline) per method
+    # Speedup vs the n_jobs=1 reference for each method. Prefer a run with
+    # variant=='baseline'; fall back to any n_jobs=1 run (e.g. parallel_n1
+    # on cluster sweeps where no separate baseline dir exists). The patch
+    # is gated so the two are operationally equivalent.
     if not df.empty:
-        baseline = df[(df["variant"] == "baseline") & (df["phase"].isin(("ga_gauss", "ga_poisson_gauss")))]
-        baseline_map = dict(zip(baseline["phase"], baseline["wall_seconds"]))
+        ref = df[(df["variant"] == "baseline") & (df["phase"].isin(("ga_gauss", "ga_poisson_gauss")))]
+        if ref.empty:
+            ref = df[(df["n_jobs"] == 1) & (df["phase"].isin(("ga_gauss", "ga_poisson_gauss")))]
+        baseline_map = dict(zip(ref["phase"], ref["wall_seconds"]))
         df["speedup"] = df.apply(
             lambda r: baseline_map.get(r["phase"], float("nan")) / r["wall_seconds"]
             if r["phase"] in baseline_map and r["wall_seconds"] > 0 else float("nan"),

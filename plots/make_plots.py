@@ -65,15 +65,16 @@ def plot_scaling(scaling_csv: Path, out_dir: Path):
            width=6, height=4, units="in")
     print(f"plots: wrote {out_dir / 'scaling_curve.png'}")
 
-    if df["speedup"].notna().any():
+    df_sp = df.dropna(subset=["speedup"])
+    if not df_sp.empty:
         # Fit Amdahl's law per phase. Use the fitted curve to extrapolate
         # over a smooth n_jobs grid that extends beyond the measured range,
         # so the asymptote 1/(1-p) is visible on the plot.
-        n_max = max(df["n_jobs"].max() * 4, 64)
+        n_max = max(df_sp["n_jobs"].max() * 4, 64)
         n_grid = np.unique(np.geomspace(1.0, n_max, 60))
         fit_rows = []
         title_bits = []
-        for phase, sub in df.groupby("phase"):
+        for phase, sub in df_sp.groupby("phase"):
             sub = sub.sort_values("n_jobs")
             p, p_err = _fit_amdahl(sub["n_jobs"].values, sub["speedup"].values)
             if p is None:
@@ -82,6 +83,7 @@ def plot_scaling(scaling_csv: Path, out_dir: Path):
                 fit_rows.append({"phase": phase, "n_jobs": n, "speedup": _amdahl(n, p)})
             title_bits.append(f"{phase}: p={p:.3f}±{p_err:.3f} (max≈{1/(1-p):.1f}×)")
         fit_df = pd.DataFrame(fit_rows)
+        df = df_sp  # only plot rows with valid speedup
         title = "Speedup vs baseline\n" + "  ·  ".join(title_bits) if title_bits else "Speedup vs baseline"
 
         p_su = (
