@@ -21,23 +21,12 @@ tqdm = "*"
 plotnine = "*"
 
 [pypi-dependencies]
-# Single crispat install: the fork. Branched off upstream 8d96f10 (current main).
-# The parallelization patch is gated on n_jobs (default 1), so the n_jobs=1
-# code path is byte-equivalent to upstream — verified by code review of the
-# diff. "Baseline" runs use this same install with n_jobs=1.
-crispat = { path = "./crispat-fork", editable = true }
-obkit = ">=0.0.3"
-denet = { path = "/home/b/lab/denet", editable = true }
-omnibenchmark = { path = "/home/b/lab/omnibenchmark", editable = true }
-
-# Cluster feature: swap path-deps for git/PyPI so the env builds anywhere.
-# Activate with `pixi install -e cluster` and `pixi run -e cluster <task>`.
-[feature.cluster.pypi-dependencies]
-crispat = { git = "https://github.com/<your-fork>/crispat.git", branch = "parallel-gauss" }
+# Single env, portable sources only — works on laptop and cluster identically.
+# To hack on crispat locally: edit in crispat-fork/, push to your parallel-gauss
+# branch on github, then `pixi update crispat` to pick up the new commit.
+crispat = { git = "https://github.com/btraven00/crispat.git", branch = "parallel-gauss" }
 denet = ">=0.3"
-
-[environments]
-cluster = ["cluster"]
+obkit = ">=0.0.3"
 
 [tasks]
 flush = "rm -rf results/"
