@@ -37,7 +37,8 @@ def main():
             print(f"correctness: SKIP {method} (no baseline assignments)")
             continue
 
-        for run_dir in sorted(root.glob("parallel_*")):
+        candidates = sorted(list(root.glob("parallel_*")) + list(root.glob("hybrid_*")))
+        for run_dir in candidates:
             df = load_assignments(run_dir, method)
             if df is None:
                 continue

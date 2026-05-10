@@ -12,7 +12,9 @@ import argparse
 import json
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
+from scipy.optimize import curve_fit
 from plotnine import (
     ggplot, aes, geom_segment, geom_line, geom_abline, geom_point,
     geom_text,
@@ -20,6 +22,26 @@ from plotnine import (
     scale_y_continuous,
     labs, theme, theme_minimal, element_text, element_blank, ggsave,
 )
+
+
+def _amdahl(n, p):
+    """Amdahl's law: S(n) = 1 / ((1-p) + p/n)."""
+    return 1.0 / ((1.0 - p) + p / n)
+
+
+def _fit_amdahl(n_jobs, speedup):
+    """Fit parallel fraction p to (n_jobs, speedup). Returns (p, p_err)."""
+    if len(n_jobs) < 2:
+        return None, None
+    try:
+        popt, pcov = curve_fit(
+            _amdahl, np.asarray(n_jobs, dtype=float),
+            np.asarray(speedup, dtype=float),
+            p0=[0.9], bounds=(0.0, 1.0),
+        )
+        return float(popt[0]), float(np.sqrt(np.diag(pcov))[0])
+    except Exception:
+        return None, None
 
 
 # -------------------------------------------------------------------- scaling
@@ -44,16 +66,41 @@ def plot_scaling(scaling_csv: Path, out_dir: Path):
     print(f"plots: wrote {out_dir / 'scaling_curve.png'}")
 
     if df["speedup"].notna().any():
+        # Fit Amdahl's law per phase. Use the fitted curve to extrapolate
+        # over a smooth n_jobs grid that extends beyond the measured range,
+        # so the asymptote 1/(1-p) is visible on the plot.
+        n_max = max(df["n_jobs"].max() * 4, 64)
+        n_grid = np.unique(np.geomspace(1.0, n_max, 60))
+        fit_rows = []
+        title_bits = []
+        for phase, sub in df.groupby("phase"):
+            sub = sub.sort_values("n_jobs")
+            p, p_err = _fit_amdahl(sub["n_jobs"].values, sub["speedup"].values)
+            if p is None:
+                continue
+            for n in n_grid:
+                fit_rows.append({"phase": phase, "n_jobs": n, "speedup": _amdahl(n, p)})
+            title_bits.append(f"{phase}: p={p:.3f}±{p_err:.3f} (max≈{1/(1-p):.1f}×)")
+        fit_df = pd.DataFrame(fit_rows)
+        title = "Speedup vs baseline\n" + "  ·  ".join(title_bits) if title_bits else "Speedup vs baseline"
+
         p_su = (
-            ggplot(df, aes(x="n_jobs", y="speedup", color="phase"))
+            ggplot()
             + geom_abline(slope=1, intercept=0, linetype="dashed", color="grey")
-            + geom_line() + geom_point()
+        )
+        if not fit_df.empty:
+            p_su = p_su + geom_line(fit_df, aes(x="n_jobs", y="speedup", color="phase"),
+                                    linetype="dotted")
+        p_su = (
+            p_su
+            + geom_point(df, aes(x="n_jobs", y="speedup", color="phase"), size=2)
+            + geom_line(df, aes(x="n_jobs", y="speedup", color="phase"))
             + scale_x_log10() + scale_y_log10()
-            + labs(x="n_jobs", y="speedup", title="Speedup vs baseline")
+            + labs(x="n_jobs", y="speedup", title=title)
             + theme_minimal()
         )
         ggsave(p_su, str(out_dir / "speedup_curve.png"), dpi=150,
-               width=6, height=4, units="in")
+               width=7, height=4.5, units="in")
         print(f"plots: wrote {out_dir / 'speedup_curve.png'}")
 
 
@@ -74,6 +121,10 @@ def _read_obkit(path: Path) -> pd.DataFrame:
 
 
 def _read_denet(path: Path) -> pd.DataFrame:
+    """Read denet samples, preferring the `aggregated` block (parent + all
+    children) over `parent` alone. For multi-process runs the parent does
+    very little; workers are children and only contribute to `aggregated`.
+    """
     rows = []
     with path.open() as f:
         for line in f:
@@ -84,12 +135,15 @@ def _read_denet(path: Path) -> pd.DataFrame:
                 rec = json.loads(line)
             except json.JSONDecodeError:
                 continue
-            if "ts_ms" not in rec or "parent" not in rec:
+            if "ts_ms" not in rec:
+                continue
+            block = rec.get("aggregated") or rec.get("parent")
+            if block is None:
                 continue
             rows.append({
                 "ts_ms": rec["ts_ms"],
-                "cpu": rec["parent"].get("cpu_usage"),
-                "rss_mb": (rec["parent"].get("mem_rss_kb") or 0) / 1024.0,
+                "cpu": block.get("cpu_usage"),
+                "rss_mb": (block.get("mem_rss_kb") or 0) / 1024.0,
             })
     return pd.DataFrame(rows)
 

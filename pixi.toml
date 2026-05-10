@@ -30,6 +30,15 @@ obkit = ">=0.0.3"
 denet = { path = "/home/b/lab/denet", editable = true }
 omnibenchmark = { path = "/home/b/lab/omnibenchmark", editable = true }
 
+# Cluster feature: swap path-deps for git/PyPI so the env builds anywhere.
+# Activate with `pixi install -e cluster` and `pixi run -e cluster <task>`.
+[feature.cluster.pypi-dependencies]
+crispat = { git = "https://github.com/<your-fork>/crispat.git", branch = "parallel-gauss" }
+denet = ">=0.3"
+
+[environments]
+cluster = ["cluster"]
+
 [tasks]
 flush = "rm -rf results/"
 prepare = "python data/prepare.py --out results/data/input.h5ad"
