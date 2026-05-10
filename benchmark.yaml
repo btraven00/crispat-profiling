@@ -1,0 +1,86 @@
+id: crispat-profiling
+description: |
+  Profile and parallelize the per-gRNA fit loop in crispat's ga_gauss and
+  ga_poisson_gauss methods. Compare baseline (pinned upstream) vs parallel
+  fork across n_jobs sweep on the bundled Schraivogel dataset.
+version: 0.1.0
+
+stages:
+
+  - id: data
+    modules:
+      - id: schraivogel
+        name: Bundled Schraivogel gRNA counts
+        software_environment: default
+        parameters: []
+        exclude: []
+    outputs:
+      - id: input_h5ad
+        path: "{input}/{stage}/{module}/input.h5ad"
+
+  - id: method
+    modules:
+      - id: baseline
+        name: fork with n_jobs=1 (upstream-equivalent path)
+        software_environment: default
+      - id: parallel_gauss
+        name: crispat fork, ga_gauss with n_jobs
+        software_environment: default
+        parameters:
+          - n_jobs: 1
+          - n_jobs: 2
+          - n_jobs: 4
+          - n_jobs: 8
+          - n_jobs: 16
+          - n_jobs: 32
+          - n_jobs: 64
+          - n_jobs: 100
+      - id: parallel_poisson_gauss
+        name: crispat fork, ga_poisson_gauss with n_jobs
+        software_environment: default
+        parameters:
+          - n_jobs: 1
+          - n_jobs: 2
+          - n_jobs: 4
+          - n_jobs: 8
+          - n_jobs: 16
+          - n_jobs: 32
+          - n_jobs: 64
+          - n_jobs: 100
+    inputs:
+      - input_h5ad
+    outputs:
+      - id: assignments
+        path: "{input}/{stage}/{module}/{params}/assignments.csv"
+      - id: obkit_events
+        path: "{input}/{stage}/{module}/{params}/obkit-events.jsonl"
+      - id: denet_samples
+        path: "{input}/{stage}/{module}/{params}/denet.jsonl"
+
+  - id: evaluation
+    modules:
+      - id: correctness
+        name: Assignment equivalence across runs
+        software_environment: default
+      - id: scaling
+        name: Speedup and efficiency table
+        software_environment: default
+    inputs:
+      - assignments
+      - obkit_events
+      - denet_samples
+
+  - id: plots
+    modules:
+      - id: figures
+        name: Scaling curve and phase-attributed traces
+        software_environment: default
+    inputs:
+      - assignments
+      - obkit_events
+      - denet_samples
+
+software_environments:
+  default:
+    description: pixi env defined in pixi.toml
+    easyconfig: null

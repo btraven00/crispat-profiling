@@ -1,0 +1,9 @@
+results/
+__pycache__/
+*.pyc
+.pixi/
+*.egg-info/
+.omnibenchmark/
+# crispat-fork is a separate git worktree; track changes there in its own repo
+crispat-fork/
+pixi.lock

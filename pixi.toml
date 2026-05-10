@@ -1,0 +1,64 @@
+[workspace]
+authors = ["ben <ben.uzh@proton.me>"]
+channels = ["conda-forge", "bioconda", "nodefaults"]
+name = "crispat-profiling"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[dependencies]
+python = "3.12.*"
+numpy = "<2"  # crispat 0.9.10 pre-dates numpy 2.x; max(2d_array)+1 fails on numpy>=2
+pandas = "*"
+scipy = "*"
+scikit-learn = "*"
+matplotlib = "*"
+seaborn = "*"
+scanpy = "*"
+anndata = "*"
+pyro-ppl = "*"
+pytorch = "*"
+tqdm = "*"
+plotnine = "*"
+
+[pypi-dependencies]
+# Single crispat install: the fork. Branched off upstream 8d96f10 (current main).
+# The parallelization patch is gated on n_jobs (default 1), so the n_jobs=1
+# code path is byte-equivalent to upstream — verified by code review of the
+# diff. "Baseline" runs use this same install with n_jobs=1.
+crispat = { path = "./crispat-fork", editable = true }
+obkit = ">=0.0.3"
+denet = { path = "/home/b/lab/denet", editable = true }
+omnibenchmark = { path = "/home/b/lab/omnibenchmark", editable = true }
+
+[tasks]
+flush = "rm -rf results/"
+prepare = "python data/prepare.py --out results/data/input.h5ad"
+
+# Clean baseline: wipe prior results, run under denet, regenerate scaling + plots.
+# Inner commands use `--` after the script name so flags like --in unambiguously
+# go to the script, not to denet's `run` subcommand.
+baseline = """
+rm -rf results/baseline && \
+mkdir -p results/baseline && \
+denet --json --out results/baseline/denet.jsonl \
+    run python methods/baseline/run.py -- \
+        --in results/data/input.h5ad \
+        --out results/baseline && \
+python evaluation/scaling.py --results results && \
+python plots/make_plots.py --results results && \
+echo '--- results/scaling.csv ---' && cat results/scaling.csv
+"""
+
+# Parallel run for a single n_jobs value. Override at invocation time:
+#   pixi run parallel -- --n-jobs 16
+parallel = """
+mkdir -p results/parallel && \
+denet --json --out results/parallel/denet.jsonl \
+    run python methods/parallel/run.py -- \
+        --in results/data/input.h5ad \
+        --out results/parallel
+"""
+
+correctness = "python evaluation/correctness.py --results results"
+scaling = "python evaluation/scaling.py --results results"
+plot = "python plots/make_plots.py --results results --out results/plots"
