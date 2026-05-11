@@ -50,3 +50,7 @@ done
 echo "[done] instrumented results in $ROOT/"
 echo "       parent phase events: $ROOT/parallel_n*/obkit-events.jsonl"
 echo "       worker fit_one events: $ROOT/parallel_n*/obkit-events.worker.<pid>.jsonl"
+
+# Aggregate + plot
+pixi run python evaluation/phases.py --results "$ROOT"
+pixi run python plots/make_phase_plots.py --results "$ROOT"
