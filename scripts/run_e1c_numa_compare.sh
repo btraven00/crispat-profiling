@@ -66,30 +66,4 @@ pixi run python plots/make_phase_plots.py     --results "$ROOT"
 pixi run python plots/make_e1c_compare_plot.py --results "$ROOT"
 
 echo
-echo "=== fit_one comparison (median per run) ==="
-pixi run python -c "
-import pandas as pd
-w = pd.read_csv('$ROOT/phases_workers.csv')
-fit = w[w.event=='fit_one'].dropna(subset=['duration_s'])
-# n_jobs is the same (32) for both runs; tag by which subdir the rows came from.
-# phases.py keys by parallel_n<N> dir, so the two runs aren't distinguishable
-# in the CSV alone — peek at each separately.
-print('Note: phases_workers.csv currently lumps both runs under n_jobs=32.')
-print('Per-run breakdown:')
-for tag in ('n${N}_unpinned', 'n${N}_pinned'):
-    import json, pathlib, re
-    durs = []
-    for f in pathlib.Path('$ROOT/' + tag).glob('obkit-events.worker.*.jsonl'):
-        with f.open() as h:
-            stack = []
-            for line in h:
-                r = json.loads(line)
-                if r.get('event') != 'fit_one': continue
-                if r['phase'] == 'start':
-                    stack.append(pd.to_datetime(r['ts']))
-                elif r['phase'] == 'end' and stack:
-                    durs.append((pd.to_datetime(r['ts']) - stack.pop()).total_seconds())
-    if durs:
-        s = pd.Series(durs)
-        print(f'  {tag:20s}  count={len(s):4d}  median={s.median():.3f}s  p95={s.quantile(0.95):.3f}s  max={s.max():.3f}s')
-"
+echo "=== see fit_one comparison summary above (from make_e1c_compare_plot.py) ==="

@@ -140,7 +140,7 @@ def main():
         + geom_jitter(all_df, aes(x="condition", y="duration_s", color="condition"),
                       width=0.12, height=0, alpha=0.4, size=1.3)
         + geom_linerange(qs, aes(x="condition", ymin="min", ymax="max"),
-                         color="grey40", size=0.8)
+                         color="#666666", size=0.8)
         + geom_linerange(qs, aes(x="condition", ymin="p05", ymax="p95"),
                          color="black", size=2.2)
         + geom_point(qs, aes(x="condition", y="median"),
