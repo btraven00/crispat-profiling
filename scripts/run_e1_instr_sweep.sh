@@ -39,7 +39,7 @@ for n in $SWEEP; do
     mkdir -p "$out"
     echo "[run]  n_jobs=$n -> $out"
     pixi run -- \
-        denet --json --out "$out/denet.jsonl" \
+        denet --json --out "$out/denet.jsonl" --enable-ebpf \
         run python methods/parallel/run.py -- \
             --in "$ROOT/data/input.h5ad" \
             --out "$out" \
