@@ -144,8 +144,17 @@ def main():
             f"phase CSVs missing in {root} — run evaluation/phases.py first"
         )
 
-    parent = pd.read_csv(parent_csv)
-    workers = pd.read_csv(workers_csv)
+    def _safe_read(p):
+        try:
+            return pd.read_csv(p)
+        except pd.errors.EmptyDataError:
+            return pd.DataFrame()
+
+    parent = _safe_read(parent_csv)
+    workers = _safe_read(workers_csv)
+    if parent.empty and workers.empty:
+        print("plots: both phase CSVs are empty — nothing to plot")
+        return
 
     plot_fit_one_distribution(workers, out_dir / "fit_one_distribution.png")
     plot_parent_phases(parent, out_dir / "parent_phases.png")

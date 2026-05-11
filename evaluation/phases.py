@@ -119,8 +119,14 @@ def aggregate(root: Path):
                     "t_first_event": t_first, "t_last_event": t_last,
                 })
 
-    parent = pd.DataFrame(parent_rows)
-    workers = pd.DataFrame(worker_rows)
+    parent = pd.DataFrame(
+        parent_rows, columns=["n_jobs", "event", "duration_s"]
+    )
+    workers = pd.DataFrame(
+        worker_rows,
+        columns=["n_jobs", "pid", "event", "gRNA", "duration_s",
+                 "t_first_event", "t_last_event"],
+    )
     return parent, workers
 
 
