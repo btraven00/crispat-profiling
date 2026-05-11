@@ -117,46 +117,93 @@ only sits in the `n_jobs == 1` branch — removing it would lower T₁ by
   this run.** Strongest remaining hypothesis: NUMA cross-socket traffic
   (workers reading pages physically resident on the other socket).
 
-### Follow-up: E1c — NUMA pinning sanity check
+### E1c — NUMA pinning sanity check (run: 2026-05-11)
 
 **Goal.** Establish whether the unexplained `fit_one` slowdown at high
-n_jobs is NUMA-driven by constraining all workers + the parent to a
-single socket via `os.sched_setaffinity` in `_init_worker`.
+n_jobs is NUMA-driven by constraining workers to a single NUMA node.
 
-**Three levers, increasing in specificity:**
+**Topology found.** omnibenchmark is an AMD EPYC 7742 — single socket,
+64 physical / 128 logical cores, but **4 NUMA nodes** of 16 physical
+cores each (Zen 2 chiplet layout). Node distances 10 local / 12 remote.
+Roland is an EPYC 7763 with the same topology (Zen 3 microarch only).
+So "cross-socket" framing was wrong — this is cross-NUMA-die. One
+NUMA node = 32 logical cores, perfectly fits the n=32 test.
 
-1. `numactl --cpunodebind=0 --membind=0 -- pixi run scripts/run_e1_instr_sweep.sh`
-   — coarse. Wraps everything; can't selectively bind workers.
-2. **`os.sched_setaffinity` inside `_init_worker`** — per-worker. Cleanest:
-   each worker pins itself at spawn time to a CPU set defined by an env
-   var (e.g. `CRISPAT_WORKER_CPUS=0-63` to confine to socket 0).
-3. `psutil.Process().cpu_affinity()` — cross-platform equivalent of (2).
+**Three conditions at n=32, ga_gauss only:**
 
-Recommended: **(2)**. Add to the throwaway `parallel-gauss-instr` branch
-since this is profiling-only:
+1. `n32_unpinned` — baseline, no affinity constraints.
+2. `n32_pinned` — workers-only via `CRISPAT_WORKER_CPUS=0-15,64-79`
+   (`os.sched_setaffinity` inside `_init_worker`).
+3. `n32_taskset` — whole-process via `taskset -c 0-15,64-79` (parent +
+   workers + AnnData allocation all on node 0).
 
-```python
-def _init_worker(adata, obkit_log_dir=None):
-    cpus = os.environ.get("CRISPAT_WORKER_CPUS")
-    if cpus:
-        os.sched_setaffinity(0, _parse_cpu_list(cpus))
-    ...
-```
+**Implementation.** Added `_parse_cpu_list` helper and CPU-set env-var
+handling in `_init_worker` on the `parallel-gauss-instr` branch
+(commit `f196eb9`). Throwaway only — not for upstream.
 
-**Sweep design:** run n_jobs ∈ {16, 32, 64} twice each — once unpinned,
-once with `CRISPAT_WORKER_CPUS=0-63` (one socket, assuming 64 cores per
-socket; check `lscpu | grep -i 'core(s)\|socket'`). Compare median
-`fit_one` between the two. Hypotheses:
+**Results (workers-only pinning vs unpinned, omni mid-load):**
 
-- Median drops at n=64 pinned vs unpinned → NUMA-driven, propose
-  socket-aware worker spawning as a future optimisation.
-- Median unchanged → not NUMA. Next candidate is BLAS allocator
-  contention (try `MALLOC_ARENA_MAX=1`) or the kernel's TLB-shootdown
-  overhead from frequent COW.
+| metric | unpinned | pinned (workers) | Δ |
+|---|---|---|---|
+| run wall | 25.65 s | **22.67 s** | **−12 %** |
+| median `fit_one` | 4.98 s | 6.29 s | +26 % |
+| mean `fit_one` | 8.10 s | **6.98 s** | **−14 %** |
+| p95 `fit_one` | 14.02 s | **9.41 s** | **−33 %** |
+| max `fit_one` | 14.06 s | **9.52 s** | **−32 %** |
 
-**Output:** one extra figure `fit_one_pinning_compare.png` — same plot
-as `fit_one_distribution.png` but with `pinned ∈ {yes, no}` as a colour
-facet.
+**Reading.** The unpinned distribution is **bimodal**: ~95 % of fits at
+4–5 s, ~5 % at 14 s. That signature is NUMA roulette — workers land on
+random nodes, lucky ones run fast, unlucky ones pay remote-fetch
+latency. Pinning **collapses the bimodality**: everyone runs at ~6 s
+with no tail past 9.5 s. Median goes up because the lucky-cohort
+disappears, but wall drops 12 % because **the tail no longer bounds
+the run**. The verdict line in `make_e1c_compare_plot.py` was updated
+to weight wall time, not median.
+
+**Whole-process taskset (third condition).** Pending — running. The
+hypothesis: workers-only pinning leaves AnnData scattered across the
+nodes where the parent happened to be (first-touch allocation runs
+*before* `_init_worker`). With `taskset` on the parent, AnnData lands
+on node 0 too, workers all access local memory, and the median should
+drop toward the unpinned fast-cohort's 4–5 s while keeping the narrow
+tail.
+
+**Conclusion for the patch story.** NUMA effects are real and
+quantifiable but not a blocker. The crispat parallelization patch ships
+as-is; pinning is a deployment-layer concern (taskset/Slurm/cgroups,
+not part of the upstream PR). The instrumentation branch demonstrates
+the lever exists if someone wants it.
+
+### E1d — Full pinned sweep (run: 2026-05-11, in progress)
+
+**Goal.** Re-run the headline scaling sweep with whole-process pinning,
+to produce the final wrap-up numbers for the writeup.
+
+**Setup.**
+- `taskset -c 0-31,64-95` (NUMA nodes 0+1, 32 physical / 64 logical
+  cores) on the entire `pixi run …` invocation.
+- `--no-plots` (per E1b finding: removes ~40 % of α for ga_gauss).
+- n_jobs ∈ {1, 2, 4, 8, 16, 32, 64} — past 64 we'd over-subscribe the
+  two-node cpuset; 64 is the post-knee region anyway.
+- Output dir: `results-e1d-pinned/`.
+- Same instrumentation as E1b → full obkit phase events + per-worker
+  fit_one + denet eBPF + memory.
+
+**Script.** `scripts/run_e1d_pinned_sweep.sh`.
+
+**Expectation.** Pinning should:
+- Cut `fit_loop` wall by 10–15 % at n=32, 64 (from E1c evidence).
+- Reduce the p95 / max of per-worker `fit_one` (collapse the bimodal
+  unpinned distribution).
+- USL α likely unchanged (it's the serial-floor fraction, not
+  parallelism quality); USL β should decrease (cleaner scaling, less
+  coherence cost).
+- Headline peak speedup ≥ 23.5× (E1b unpinned, `run` total), aiming
+  for ≥ 26× given the E1c wall-time gain.
+
+**Next.** Once data lands: regenerate the speedup-curve plot with the
+new USL fit, compare side by side with the E1b unpinned fit, build a
+wrap-up slide (`results-e1d-pinned/summary.typ` → PDF for presentation).
 
 ---
 
