@@ -15,6 +15,9 @@
 #   scripts/run_e1d_pinned_sweep.sh "1 8 32 64" # custom n_jobs list
 set -euo pipefail
 
+# Ensure pixi is on PATH for non-login shells (cluster SSH).
+export PATH="$HOME/.pixi/bin:$PATH"
+
 ROOT="results-e1d-pinned"
 SWEEP="${1:-1 2 4 8 16 32 64}"
 
