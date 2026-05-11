@@ -1,0 +1,3 @@
+{"ts":"2026-05-11T15:02:43.236Z","event":"worker_init","phase":"end","pid":2305746,"host":"omnibenchmark","attrs":{"role":"gauss"}}
+{"ts":"2026-05-11T15:02:44.342Z","event":"fit_one","phase":"start","pid":2305746,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_GATA1-C"}}
+{"ts":"2026-05-11T15:02:49.849Z","event":"fit_one","phase":"end","pid":2305746,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_GATA1-C"}}

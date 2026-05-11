@@ -1,0 +1,13 @@
+{"ts":"2026-05-11T15:01:44.898Z","event":"worker_init","phase":"end","pid":2304185,"host":"omnibenchmark","attrs":{"role":"poisson_gauss"}}
+{"ts":"2026-05-11T15:01:45.063Z","event":"fit_one","phase":"start","pid":2304185,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_CCNE2_+_95907406.23-P1P2"}}
+{"ts":"2026-05-11T15:01:47.834Z","event":"fit_one","phase":"end","pid":2304185,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_CCNE2_+_95907406.23-P1P2"}}
+{"ts":"2026-05-11T15:01:47.835Z","event":"fit_one","phase":"start","pid":2304185,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_HS2-C"}}
+{"ts":"2026-05-11T15:01:49.257Z","event":"fit_one","phase":"end","pid":2304185,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_HS2-C"}}
+{"ts":"2026-05-11T15:01:49.257Z","event":"fit_one","phase":"start","pid":2304185,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_PHF20L1_+_133787682-P1P2"}}
+{"ts":"2026-05-11T15:01:50.672Z","event":"fit_one","phase":"end","pid":2304185,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_PHF20L1_+_133787682-P1P2"}}
+{"ts":"2026-05-11T15:01:50.672Z","event":"fit_one","phase":"start","pid":2304185,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_UBR5_-_103424857.23-P1P2"}}
+{"ts":"2026-05-11T15:01:52.084Z","event":"fit_one","phase":"end","pid":2304185,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_UBR5_-_103424857.23-P1P2"}}
+{"ts":"2026-05-11T15:01:52.085Z","event":"fit_one","phase":"start","pid":2304185,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_non-targeting_00009"}}
+{"ts":"2026-05-11T15:01:53.566Z","event":"fit_one","phase":"end","pid":2304185,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_non-targeting_00009"}}
+{"ts":"2026-05-11T15:01:53.566Z","event":"fit_one","phase":"start","pid":2304185,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_non-targeting_00027"}}
+{"ts":"2026-05-11T15:01:54.900Z","event":"fit_one","phase":"end","pid":2304185,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_non-targeting_00027"}}

@@ -1,0 +1,13 @@
+{"ts":"2026-05-11T15:01:45.034Z","event":"worker_init","phase":"end","pid":2304196,"host":"omnibenchmark","attrs":{"role":"poisson_gauss"}}
+{"ts":"2026-05-11T15:01:45.065Z","event":"fit_one","phase":"start","pid":2304196,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_FAM83A_+_124195012-P1P2"}}
+{"ts":"2026-05-11T15:01:47.764Z","event":"fit_one","phase":"end","pid":2304196,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_FAM83A_+_124195012-P1P2"}}
+{"ts":"2026-05-11T15:01:47.765Z","event":"fit_one","phase":"start","pid":2304196,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_GATA1-B"}}
+{"ts":"2026-05-11T15:01:49.210Z","event":"fit_one","phase":"end","pid":2304196,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_GATA1-B"}}
+{"ts":"2026-05-11T15:01:49.211Z","event":"fit_one","phase":"start","pid":2304196,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_OXR1_+_107670422.23"}}
+{"ts":"2026-05-11T15:01:50.690Z","event":"fit_one","phase":"end","pid":2304196,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_OXR1_+_107670422.23"}}
+{"ts":"2026-05-11T15:01:50.691Z","event":"fit_one","phase":"start","pid":2304196,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_ZFPM2-A"}}
+{"ts":"2026-05-11T15:01:52.145Z","event":"fit_one","phase":"end","pid":2304196,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_ZFPM2-A"}}
+{"ts":"2026-05-11T15:01:52.145Z","event":"fit_one","phase":"start","pid":2304196,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_non-targeting_00012"}}
+{"ts":"2026-05-11T15:01:53.546Z","event":"fit_one","phase":"end","pid":2304196,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_non-targeting_00012"}}
+{"ts":"2026-05-11T15:01:53.546Z","event":"fit_one","phase":"start","pid":2304196,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_non-targeting_00026"}}
+{"ts":"2026-05-11T15:01:54.868Z","event":"fit_one","phase":"end","pid":2304196,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_non-targeting_00026"}}

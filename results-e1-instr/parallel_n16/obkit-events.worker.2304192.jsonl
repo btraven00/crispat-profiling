@@ -1,0 +1,13 @@
+{"ts":"2026-05-11T15:01:44.981Z","event":"worker_init","phase":"end","pid":2304192,"host":"omnibenchmark","attrs":{"role":"poisson_gauss"}}
+{"ts":"2026-05-11T15:01:45.064Z","event":"fit_one","phase":"start","pid":2304192,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_DSCC1_+_120868042.23-P1P2"}}
+{"ts":"2026-05-11T15:01:47.844Z","event":"fit_one","phase":"end","pid":2304192,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_DSCC1_+_120868042.23-P1P2"}}
+{"ts":"2026-05-11T15:01:47.845Z","event":"fit_one","phase":"start","pid":2304192,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_HS2-D"}}
+{"ts":"2026-05-11T15:01:49.449Z","event":"fit_one","phase":"end","pid":2304192,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_HS2-D"}}
+{"ts":"2026-05-11T15:01:49.450Z","event":"fit_one","phase":"start","pid":2304192,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_RIPK2_+_90770318.23-P1P2"}}
+{"ts":"2026-05-11T15:01:50.893Z","event":"fit_one","phase":"end","pid":2304192,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_RIPK2_+_90770318.23-P1P2"}}
+{"ts":"2026-05-11T15:01:50.893Z","event":"fit_one","phase":"start","pid":2304192,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_ZFPM2-D"}}
+{"ts":"2026-05-11T15:01:52.334Z","event":"fit_one","phase":"end","pid":2304192,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_ZFPM2-D"}}
+{"ts":"2026-05-11T15:01:52.334Z","event":"fit_one","phase":"start","pid":2304192,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_non-targeting_00014"}}
+{"ts":"2026-05-11T15:01:53.691Z","event":"fit_one","phase":"end","pid":2304192,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_non-targeting_00014"}}
+{"ts":"2026-05-11T15:01:53.691Z","event":"fit_one","phase":"start","pid":2304192,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_non-targeting_00029"}}
+{"ts":"2026-05-11T15:01:55.124Z","event":"fit_one","phase":"end","pid":2304192,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_non-targeting_00029"}}

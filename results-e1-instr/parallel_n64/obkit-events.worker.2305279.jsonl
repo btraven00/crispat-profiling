@@ -1,0 +1,3 @@
+{"ts":"2026-05-11T15:02:31.077Z","event":"worker_init","phase":"end","pid":2305279,"host":"omnibenchmark","attrs":{"role":"poisson_gauss"}}
+{"ts":"2026-05-11T15:02:31.801Z","event":"fit_one","phase":"start","pid":2305279,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_FAM83A_+_124195012-P1P2"}}
+{"ts":"2026-05-11T15:02:35.309Z","event":"fit_one","phase":"end","pid":2305279,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_FAM83A_+_124195012-P1P2"}}

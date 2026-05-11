@@ -1,0 +1,13 @@
+{"ts":"2026-05-11T15:01:44.886Z","event":"worker_init","phase":"end","pid":2304184,"host":"omnibenchmark","attrs":{"role":"poisson_gauss"}}
+{"ts":"2026-05-11T15:01:45.063Z","event":"fit_one","phase":"start","pid":2304184,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_CCNE2_+_95907382.23-P1P2"}}
+{"ts":"2026-05-11T15:01:47.779Z","event":"fit_one","phase":"end","pid":2304184,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_CCNE2_+_95907382.23-P1P2"}}
+{"ts":"2026-05-11T15:01:47.780Z","event":"fit_one","phase":"start","pid":2304184,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_GATA1-C"}}
+{"ts":"2026-05-11T15:01:49.192Z","event":"fit_one","phase":"end","pid":2304184,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_GATA1-C"}}
+{"ts":"2026-05-11T15:01:49.192Z","event":"fit_one","phase":"start","pid":2304184,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_OXR1_+_107670159.23"}}
+{"ts":"2026-05-11T15:01:50.647Z","event":"fit_one","phase":"end","pid":2304184,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_OXR1_+_107670159.23"}}
+{"ts":"2026-05-11T15:01:50.648Z","event":"fit_one","phase":"start","pid":2304184,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_UBR5_+_103424940.23-P1P2"}}
+{"ts":"2026-05-11T15:01:52.101Z","event":"fit_one","phase":"end","pid":2304184,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_UBR5_+_103424940.23-P1P2"}}
+{"ts":"2026-05-11T15:01:52.102Z","event":"fit_one","phase":"start","pid":2304184,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_non-targeting_00010"}}
+{"ts":"2026-05-11T15:01:53.624Z","event":"fit_one","phase":"end","pid":2304184,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_non-targeting_00010"}}
+{"ts":"2026-05-11T15:01:53.625Z","event":"fit_one","phase":"start","pid":2304184,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_non-targeting_00028"}}
+{"ts":"2026-05-11T15:01:54.965Z","event":"fit_one","phase":"end","pid":2304184,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_non-targeting_00028"}}

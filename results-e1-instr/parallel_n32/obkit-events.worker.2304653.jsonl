@@ -1,0 +1,7 @@
+{"ts":"2026-05-11T15:02:01.525Z","event":"worker_init","phase":"end","pid":2304653,"host":"omnibenchmark","attrs":{"role":"gauss"}}
+{"ts":"2026-05-11T15:02:01.788Z","event":"fit_one","phase":"start","pid":2304653,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_FAM83A_+_124194986-P1P2"}}
+{"ts":"2026-05-11T15:02:05.405Z","event":"fit_one","phase":"end","pid":2304653,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_FAM83A_+_124194986-P1P2"}}
+{"ts":"2026-05-11T15:02:05.406Z","event":"fit_one","phase":"start","pid":2304653,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_UBR5_-_103424644.23-P1P2"}}
+{"ts":"2026-05-11T15:02:07.564Z","event":"fit_one","phase":"end","pid":2304653,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_UBR5_-_103424644.23-P1P2"}}
+{"ts":"2026-05-11T15:02:07.565Z","event":"fit_one","phase":"start","pid":2304653,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_non-targeting_00010"}}
+{"ts":"2026-05-11T15:02:09.684Z","event":"fit_one","phase":"end","pid":2304653,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_non-targeting_00010"}}

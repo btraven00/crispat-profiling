@@ -1,0 +1,13 @@
+{"ts":"2026-05-11T15:01:25.675Z","event":"worker_init","phase":"end","pid":2304082,"host":"omnibenchmark","attrs":{"role":"gauss"}}
+{"ts":"2026-05-11T15:01:25.762Z","event":"fit_one","phase":"start","pid":2304082,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_DSCC1_-_120868119.23-P1P2"}}
+{"ts":"2026-05-11T15:01:30.144Z","event":"fit_one","phase":"end","pid":2304082,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_DSCC1_-_120868119.23-P1P2"}}
+{"ts":"2026-05-11T15:01:30.144Z","event":"fit_one","phase":"start","pid":2304082,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_GATA1-B"}}
+{"ts":"2026-05-11T15:01:33.048Z","event":"fit_one","phase":"end","pid":2304082,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_GATA1-B"}}
+{"ts":"2026-05-11T15:01:33.049Z","event":"fit_one","phase":"start","pid":2304082,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_OXR1_+_107670106.23"}}
+{"ts":"2026-05-11T15:01:36.291Z","event":"fit_one","phase":"end","pid":2304082,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_OXR1_+_107670106.23"}}
+{"ts":"2026-05-11T15:01:36.291Z","event":"fit_one","phase":"start","pid":2304082,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_UBR5_-_103424644.23-P1P2"}}
+{"ts":"2026-05-11T15:01:38.747Z","event":"fit_one","phase":"end","pid":2304082,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_UBR5_-_103424644.23-P1P2"}}
+{"ts":"2026-05-11T15:01:38.748Z","event":"fit_one","phase":"start","pid":2304082,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_non-targeting_00007"}}
+{"ts":"2026-05-11T15:01:41.024Z","event":"fit_one","phase":"end","pid":2304082,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_non-targeting_00007"}}
+{"ts":"2026-05-11T15:01:41.025Z","event":"fit_one","phase":"start","pid":2304082,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_non-targeting_00018"}}
+{"ts":"2026-05-11T15:01:43.325Z","event":"fit_one","phase":"end","pid":2304082,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_non-targeting_00018"}}

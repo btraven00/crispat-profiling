@@ -1,0 +1,5 @@
+{"ts":"2026-05-11T15:02:22.998Z","event":"worker_init","phase":"end","pid":2305204,"host":"omnibenchmark","attrs":{"role":"gauss"}}
+{"ts":"2026-05-11T15:02:23.316Z","event":"fit_one","phase":"start","pid":2305204,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_RIPK2_+_90770127.23-P1P2"}}
+{"ts":"2026-05-11T15:02:27.770Z","event":"fit_one","phase":"end","pid":2305204,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_RIPK2_+_90770127.23-P1P2"}}
+{"ts":"2026-05-11T15:02:27.771Z","event":"fit_one","phase":"start","pid":2305204,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_non-targeting_00023"}}
+{"ts":"2026-05-11T15:02:30.087Z","event":"fit_one","phase":"end","pid":2305204,"host":"omnibenchmark","attrs":{"gRNA":"CROPseq_dCas9_DS_non-targeting_00023"}}
